@@ -4,6 +4,7 @@
 A Python program that simulates a simple ecosystem.
 The red squares represent male types, and yellow squares represent female types.
 Female types are 25% more likely to be produced after the original two organisms.
+Randomness is independent, not based on parent attributes.
 
 
 ## Update history:
