@@ -12,16 +12,20 @@ from pygame.locals import (
 
 pygame.init()
 
-MALE_CARN = pygame.USEREVENT + 1
-FEMALE_CARN = pygame.USEREVENT + 2
-
 class Carnivore(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, parent=None):
         super(Carnivore, self).__init__()
         self.surf = pygame.Surface((50, 50))
         self.rect = self.surf.get_rect()
         self.dir = rand(0, 179)
-        self.speed = rand(2, 5)
+        self.life = t.time()
+        if parent != None:
+            self.speed = rand(parent.speed - 2, parent.speed + 2)
+            self.life_span = rand(parent.life_span - 10, parent.life_span +10)
+        else:
+            self.speed = rand(2, 5)
+            self.life_span = rand(10, 30)        
+        
         
     def update(self):
         if rand(1, 20) == 20:
@@ -47,23 +51,20 @@ class Carnivore(pygame.sprite.Sprite):
         
 class MaleCarn(Carnivore):
     
-    def __init__(self):
+    def __init__(self, parent=None):
         super(MaleCarn, self).__init__()
         self.surf.fill((255,0,0))
-        self.life = t.time()
-        self.life_span = rand(10, 30)
         
     def update(self):
         super(MaleCarn, self).update()
 
+
 class FemaleCarn(Carnivore):
     
-    def __init__(self):
+    def __init__(self, parent=None):
         super(FemaleCarn, self).__init__()
         self.surf.fill((255,255,0))
         self.pregnant = False
-        self.life = t.time()
-        self.life_span = rand(10, 30)
         
     def update(self):
         super(FemaleCarn, self).update()
@@ -78,9 +79,15 @@ class FemaleCarn(Carnivore):
 
     def birth(self):
         if rand(1, 7) < 4:
-            pygame.event.post(pygame.event.Event(MALE_CARN))
+            new_carn = MaleCarn(self)
+            male_carns.add(new_carn)
+            carnivores.add(new_carn)
+            organisms.add(new_carn)
         else:
-            pygame.event.post(pygame.event.Event(FEMALE_CARN))
+            new_carn = FemaleCarn(self)
+            female_carns.add(new_carn)
+            carnivores.add(new_carn)
+            organisms.add(new_carn)
         self.pregnant = False
 
 
@@ -91,7 +98,8 @@ organisms = pygame.sprite.Group()
 carnivores = pygame.sprite.Group()
 male_carns = pygame.sprite.Group()
 female_carns = pygame.sprite.Group()
-
+carnivores.add([male_carns, female_carns])
+organisms.add(carnivores)
 
 adam = MaleCarn()
 eve = FemaleCarn()
@@ -109,17 +117,6 @@ while running:
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 running = False
-        elif event.type == MALE_CARN:
-            new_carn = MaleCarn()
-            male_carns.add(new_carn)
-            carnivores.add(new_carn)
-            organisms.add(new_carn)
-        elif event.type == FEMALE_CARN:
-            new_carn = FemaleCarn()
-            female_carns.add(new_carn)
-            carnivores.add(new_carn)
-            organisms.add(new_carn)
-
 
     screen.fill((0,0,0))
 
